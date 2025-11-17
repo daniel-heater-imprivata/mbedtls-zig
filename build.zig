@@ -39,11 +39,11 @@ pub fn build(b: *Build) void {
         }),
     });
     selftest.root_module.addCMacro("MBEDTLS_SELF_TEST", "");
-    selftest.addCSourceFile(.{
+    selftest.root_module.addCSourceFile(.{
         .file = mbedtls_dep.path("programs/test/selftest.c"),
         .flags = &.{},
     });
-    selftest.linkLibrary(mbedtls);
+    selftest.root_module.linkLibrary(mbedtls);
     b.getInstallStep().dependOn(&selftest.step);
 
     const selftest_run = b.addRunArtifact(selftest);
