@@ -1,4 +1,5 @@
-name: Build and Test
+name: CI
+
 on:
   push:
     branches: [main]
@@ -11,49 +12,26 @@ jobs:
       fail-fast: false
       matrix:
         os: [windows-latest, ubuntu-latest, macos-latest]
-        target: [
-          native,
-          x86_64-linux-gnu,
-          x86_64-linux-musl,
-          x86_64-windows,
-          aarch64-macos,
-          aarch64-linux-gnu,
-          aarch64-linux-musl
-          # TODO: bsd
-        ]
-        optimize: [
-          Debug,
-          ReleaseSafe,
-          ReleaseFast,
-          ReleaseSmall
-        ]
     runs-on: ${{ matrix.os }}
     steps:
-      - uses: actions/checkout@v2
-        with:
-          submodules: recursive
+        uses: actions/checkout@v4
 
       - name: Setup Zig
-        uses: mlugg/setup-zig@v2.0.5
-        with:
-          version: 0.15.1
+        uses: mlugg/setup-zig@v2
+
+      - name: Check Formatting
+        run: zig fmt --ast-check --check .
+
       - name: Build
-        run: zig build -Dtarget=${{ matrix.target }} -Doptimize=${{ matrix.optimize }}
-  test:
-    strategy:
-      fail-fast: false
-      matrix:
-        os: [windows-latest, ubuntu-latest, macos-latest]
-    runs-on: ${{ matrix.os }}
-    steps:
-      - uses: actions/checkout@v2
-        with:
-          submodules: recursive
-
-      - name: Setup Zig
-        uses: mlugg/setup-zig@v2.0.5
-        with:
-          version: 0.15.1
+        run: zig build --summary all
 
       - name: Test
-        run: zig build test
+        run: zig build test --summary all
+
+      - name: Cross Compile
+        if: matrix.os == 'ubuntu-latest'
+        uses: |
+          zig build -Dtarget=native-linux-gnu
+          zig build -Dtarget=native-linux-musl
+          zig build -Dtarget=native-freebsd
+          zig build -Dtarget=native-netbsd
