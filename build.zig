@@ -21,6 +21,10 @@ pub fn build(b: *Build) void {
         .root = mbedtls_dep.path("library"),
         .files = srcs,
     });
+    if (target.result.os.tag == .freebsd) {
+        // Otherwise `explicit_bzero` cannot be found
+        mbedtls.root_module.addCMacro("__BSD_VISIBLE", "1");
+    }
 
     mbedtls.installHeadersDirectory(mbedtls_dep.path("include/mbedtls"), "mbedtls", .{});
     mbedtls.installHeadersDirectory(mbedtls_dep.path("include/psa"), "psa", .{});
