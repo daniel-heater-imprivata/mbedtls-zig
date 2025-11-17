@@ -30,7 +30,7 @@ jobs:
 
       - name: Cross Compile
         if: matrix.os == 'ubuntu-latest'
-        uses: |
+        run: |
           zig build -Dtarget=native-linux-gnu
           zig build -Dtarget=native-linux-musl
           zig build -Dtarget=native-freebsd
