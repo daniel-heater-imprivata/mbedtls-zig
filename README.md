@@ -1,4 +1,4 @@
-[![CI](https://github.com/allyourcodebase/mbedtls/actions/workflows/ci.yaml/badge.svg)](https://github.com/allyourcodebase/mbedtls/actions)
+[![CI](https://github.com/allyourcodebase/mbedtls/actions/workflows/build.yml/badge.svg)](https://github.com/allyourcodebase/mbedtls/actions/workflows/build.yml)
 
 # Mbed TLS
 
