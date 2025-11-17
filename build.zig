@@ -32,9 +32,11 @@ pub fn build(b: *Build) void {
 
     const selftest = b.addExecutable(.{
         .name = "selftest",
-        .target = target,
-        .optimize = optimize,
-        .link_libc = true,
+        .root_module = b.createModule(.{
+            .target = target,
+            .optimize = optimize,
+            .link_libc = true,
+        }),
     });
     selftest.root_module.addCMacro("MBEDTLS_SELF_TEST", "");
     selftest.addCSourceFile(.{
