@@ -1,0 +1,44 @@
+{
+  "$schema": "https://raw.githubusercontent.com/jetify-com/devbox/0.16.0/.schema/devbox.schema.json",
+  "packages": [
+    "zig@0.15.2",
+    "apple-sdk@latest"
+  ],
+  "shell": {
+    "init_hook": [
+      "echo 'Welcome to devbox!' > /dev/null"
+    ],
+    "scripts": {
+      "build": [
+        "NIX_CFLAGS_COMPILE='' zig build"
+      ],
+      "build-pic": [
+        "NIX_CFLAGS_COMPILE='' zig build -Dpie=true"
+      ],
+      "install": [
+        "NIX_CFLAGS_COMPILE='' zig build install"
+      ],
+      "test": [
+        "NIX_CFLAGS_COMPILE='' zig build",
+        "NIX_CFLAGS_COMPILE='' zig build -Dpie=true",
+        "NIX_CFLAGS_COMPILE='' zig build install",
+        "test -f zig-out/lib/libmbedtls.a && echo 'Static library OK' || exit 1",
+        "test -f zig-out/include/mbedtls/ssl.h && echo 'Headers OK' || exit 1",
+        "NIX_CFLAGS_COMPILE='' zig build test"
+      ],
+      "test-cross": [
+        "echo 'Testing cross-compilation for all targets...'",
+        "NIX_CFLAGS_COMPILE='' zig build -Dtarget=x86_64-linux -Doptimize=ReleaseSafe && echo '✓ x86_64-linux'",
+        "NIX_CFLAGS_COMPILE='' zig build -Dtarget=aarch64-linux -Doptimize=ReleaseSafe && echo '✓ aarch64-linux'",
+        "NIX_CFLAGS_COMPILE='' zig build -Dtarget=x86_64-macos -Doptimize=ReleaseSafe && echo '✓ x86_64-macos'",
+        "NIX_CFLAGS_COMPILE='' zig build -Dtarget=aarch64-macos -Doptimize=ReleaseSafe && echo '✓ aarch64-macos'",
+        "NIX_CFLAGS_COMPILE='' zig build -Dtarget=x86_64-windows -Doptimize=ReleaseSafe && echo '✓ x86_64-windows'",
+        "NIX_CFLAGS_COMPILE='' zig build -Dtarget=aarch64-windows -Doptimize=ReleaseSafe && echo '✓ aarch64-windows'",
+        "echo 'All cross-compilation targets succeeded!'"
+      ],
+      "clean": [
+        "rm -rf zig-out zig-cache .zig-cache"
+      ]
+    }
+  }
+}

@@ -1,0 +1,16 @@
+.{
+    .name = .test_mbedtls,
+    .version = "0.0.0",
+    .fingerprint = 0x585ad40ad872112f,
+    .dependencies = .{
+        .mbedtls = .{
+            .path = "..",
+        },
+    },
+    .paths = .{
+        "build.zig",
+        "build.zig.zon",
+        "main.zig",
+    },
+}
+

@@ -1,7 +1,7 @@
 const std = @import("std");
-const Build = std.Build;
 
-pub fn build(b: *Build) void {
+pub fn build(b: *std.Build) void {
+    const pic = b.option(bool, "pie", "Produce Position Independent Code");
     const target = b.standardTargetOptions(.{});
     const optimize = b.standardOptimizeOption(.{});
 
@@ -14,12 +14,19 @@ pub fn build(b: *Build) void {
             .target = target,
             .optimize = optimize,
             .link_libc = true,
+            .pic = pic,
         }),
     });
     mbedtls.root_module.addIncludePath(mbedtls_dep.path("include"));
-    mbedtls.root_module.addCSourceFiles(.{
+
+    const base_cflags = [_][]const u8{};
+    const cflags_with_pic = base_cflags ++ [_][]const u8{"-fPIC"};
+    const cflags = if (pic orelse false) &cflags_with_pic else &base_cflags;
+
+    mbedtls.addCSourceFiles(.{
         .root = mbedtls_dep.path("library"),
-        .files = srcs,
+        .files = &srcs,
+        .flags = cflags,
     });
     if (target.result.os.tag == .freebsd) {
         // Otherwise `explicit_bzero` cannot be found
@@ -31,7 +38,7 @@ pub fn build(b: *Build) void {
     b.installArtifact(mbedtls);
 
     if (target.result.os.tag == .windows) {
-        mbedtls.root_module.linkSystemLibrary("bcrypt", .{});
+        mbedtls.linkSystemLibrary2("bcrypt", .{ .preferred_link_mode = .dynamic });
     }
 
     const selftest = b.addExecutable(.{
@@ -55,7 +62,7 @@ pub fn build(b: *Build) void {
     test_step.dependOn(&selftest_run.step);
 }
 
-const srcs: []const []const u8 = &.{
+const srcs = [_][]const u8{
     "x509_create.c",
     "x509_crt.c",
     "psa_crypto_client.c",
